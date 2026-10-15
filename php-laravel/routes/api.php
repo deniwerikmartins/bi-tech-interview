@@ -1,19 +1,34 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\PatientController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+/**
+ * Health check — verifies app and database connectivity.
+ */
+Route::get('/health', function () {
+    try {
+        DB::connection()->getPdo();
+        $dbStatus = 'connected';
+    } catch (\Exception $e) {
+        $dbStatus = 'unavailable';
+    }
+
+    return response()->json([
+        'status'   => $dbStatus === 'connected' ? 'ok' : 'degraded',
+        'database' => $dbStatus,
+        'app'      => config('app.name'),
+    ], $dbStatus === 'connected' ? 200 : 503);
 });
+
+/**
+ * Patient CRUD endpoints.
+ */
+Route::apiResource('patients', PatientController::class);
