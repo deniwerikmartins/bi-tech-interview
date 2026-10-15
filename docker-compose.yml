@@ -1,0 +1,59 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bi_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: bi_patients
+      MYSQL_USER: bi_user
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3307:3306"
+    volumes:
+      - bi_mysql_data:/var/lib/mysql
+    networks:
+      - bi_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./php-laravel
+      dockerfile: Dockerfile
+    container_name: bi_backend
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - bi_network
+    volumes:
+      - ./php-laravel:/var/www/html
+      - /var/www/html/vendor
+
+  frontend:
+    build:
+      context: ./front-vuejs
+      dockerfile: Dockerfile
+    container_name: bi_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - bi_network
+
+networks:
+  bi_network:
+    driver: bridge
+
+volumes:
+  bi_mysql_data:
+    driver: local

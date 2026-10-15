@@ -1,0 +1,9 @@
+# Kiro IDE — configurações locais (não versionar)
+.kiro/
+
+# macOS
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
