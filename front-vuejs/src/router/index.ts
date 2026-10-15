@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 
 Vue.use(VueRouter)
 
@@ -10,16 +9,27 @@ const router = new VueRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView
+      redirect: '/pacientes'
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      path: '/pacientes',
+      name: 'patients',
+      component: () => import('../views/PatientsView.vue')
+    },
+    {
+      path: '/pacientes/novo',
+      name: 'patient-create',
+      component: () => import('../views/PatientCreateView.vue')
+    },
+    {
+      path: '/pacientes/:id',
+      name: 'patient-detail',
+      component: () => import('../views/PatientDetailView.vue')
+    },
+    {
+      path: '/pacientes/:id/editar',
+      name: 'patient-edit',
+      component: () => import('../views/PatientEditView.vue')
     }
   ]
 })

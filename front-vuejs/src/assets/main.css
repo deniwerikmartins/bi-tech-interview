@@ -1,35 +1,199 @@
-@import "./base.css";
+/* ── Global styles ─────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #1a2b4a;
+}
+
+/* ── Layout ─────────────────────────────────────────────── */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  font-weight: normal;
+  display: flex;
+  min-height: 100vh;
 }
 
-a,
-.green {
+.main-content {
+  flex: 1;
+  padding: 32px 40px;
+  overflow-y: auto;
+}
+
+/* ── Typography ─────────────────────────────────────────── */
+h1.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a2b4a;
+  margin: 0;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────── */
+.breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin-bottom: 24px;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-item a {
+  color: #3d5aab;
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+.breadcrumb-item a:hover {
+  text-decoration: underline;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+.breadcrumb-item.active {
+  color: #6c757d;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+/* ── Card ───────────────────────────────────────────────── */
+.card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn-primary {
+  background-color: #3d5aab !important;
+  border-color: #3d5aab !important;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background-color: #2f4690 !important;
+  border-color: #2f4690 !important;
+}
+
+.btn-link-danger {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-weight: 500;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-link-danger:hover {
+  text-decoration: underline;
+}
+
+/* ── Form ───────────────────────────────────────────────── */
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a2b4a;
+  margin-bottom: 4px;
+}
+
+.form-label .optional {
+  font-weight: 400;
+  color: #6c757d;
+  margin-left: 4px;
+}
+
+.form-control:focus {
+  border-color: #3d5aab;
+  box-shadow: 0 0 0 0.2rem rgba(61, 90, 171, 0.2);
+}
+
+/* ── Table ──────────────────────────────────────────────── */
+.patients-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.patients-table thead th {
+  background-color: #ffffff;
+  color: #1a2b4a;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-bottom: 2px solid #e9ecef;
+  padding: 14px 16px;
+}
+
+.patients-table tbody td {
+  padding: 14px 16px;
+  vertical-align: middle;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.patients-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Search input ───────────────────────────────────────── */
+.search-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.search-wrapper .search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #adb5bd;
+}
+
+.search-wrapper input {
+  padding-left: 42px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  height: 44px;
+  font-size: 0.875rem;
+}
+
+/* ── Pagination ─────────────────────────────────────────── */
+.pagination .page-item.active .page-link {
+  background-color: #3d5aab;
+  border-color: #3d5aab;
+}
+
+.pagination .page-link {
+  color: #3d5aab;
+}
+
+/* ── View icon button ───────────────────────────────────── */
+.btn-view {
+  background-color: #3d5aab;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s;
+}
+
+.btn-view:hover {
+  background-color: #2f4690;
+}
+
+/* ── Detail grid ────────────────────────────────────────── */
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 0.9375rem;
+  color: #1a2b4a;
 }
