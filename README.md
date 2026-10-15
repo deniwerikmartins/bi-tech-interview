@@ -1,36 +1,226 @@
-# Desafio para a vaga de Fullstack Developer (PHP/Laravel e VueJS)
+# Desafio Fullstack — CRUD de Pacientes
 
-## Instruções
-- O desafio consiste em criar uma pequena aplicação fullstack com o Backend em PHP/Laravel e o Front-end (client) em VueJS.
-- A aplicação precisará entregar uma aplicação com o CRUD completo para o cadastro de pacientes.
-- A ideia é avaliar habilidades como técnica e lógica de programação, estilo de código e padronização do trabalho.
+Aplicação fullstack completa para cadastro e gestão de pacientes, desenvolvida com **Laravel 10** no backend e **Vue.js 2** no frontend, containerizada com **Docker**.
 
-### Entrega Esperada
-- README com instruções de como rodar as duas aplicações juntas
-- Tela inicial com listagem de pacientes
-- Tela de detalhe do paciente com infos sobre o paciente
-- Tela de edição de paciente
-- Modal de confirmação de exclusão de um paciente
--  Ao excluir, o sistema deverá realizar um "soft delete" do registro na base
-- Utilizar boas práticas de programação e código limpo
+---
 
-## Informações Úteis
-- O candidato deverá clonar o repositório de back-end e do front-end, rodar as duas aplicações localmente e criar o trabalho proposto no desafio.
+## Índice
 
-### Back-end (php-laravel)
-- No docker-compose do projeto já tem instância de MySQL e a aplicação conteinerizada
-- Utilizar API Rest para expor as rotas para o front-end
-- Anexar um arquivo do Postman com exemplos das chamadas
-- Entrega com testes de unidade ou E2E serão usadas como critério de desempate.
+- [Pré-requisitos](#pré-requisitos)
+- [Como rodar a aplicação](#como-rodar-a-aplicação)
+- [URLs de acesso](#urls-de-acesso)
+- [Como rodar os testes](#como-rodar-os-testes)
+- [Arquitetura e decisões técnicas](#arquitetura-e-decisões-técnicas)
+- [Collection do Postman](#collection-do-postman)
 
-### Front-end (front-vuejs)
-- Utilizamos VueJS 2 criados a partir do "Getting Start" da documentação
-- Criar rota e layout utilizando Vue-Material, Vue-Bootstrap ou Vuetify (ou outra lib de sua escolha)
-- Criar uma página para listar os pacientes
-- Botões e interações na listagem para entrar no detalhe do paciente, editar ou excluir um paciente
-- Tela de Detalhes do paciente
+---
 
-### Tela / Protótipo
-Todas as telas estão na pasta images
+## Pré-requisitos
 
-![Listagem de Pacientes](images/1.png)
+- [Docker](https://docs.docker.com/get-docker/) 24+
+- [Docker Compose](https://docs.docker.com/compose/) v2+
+
+Nenhuma outra dependência precisa ser instalada localmente.
+
+---
+
+## Como rodar a aplicação
+
+Clone o repositório e suba toda a stack com um único comando na raiz do projeto:
+
+```bash
+git clone <url-do-repositorio>
+cd bi-tech-interview
+docker compose up --build
+```
+
+Na primeira execução o processo:
+
+1. Baixa e compila as imagens (pode levar alguns minutos)
+2. Aguarda o MySQL ficar saudável
+3. Executa as migrations automaticamente
+4. Executa os seeders — gera **25 pacientes** com dados brasileiros realistas
+5. Sobe o servidor Laravel (PHP-FPM + Nginx) na porta `8000`
+6. Compila o frontend Vue.js e serve via Nginx na porta `3000`
+
+Para parar:
+
+```bash
+docker compose down
+```
+
+Para destruir também os dados do banco:
+
+```bash
+docker compose down -v
+```
+
+---
+
+## URLs de acesso
+
+| Serviço | URL |
+|---|---|
+| **Frontend** (Vue.js) | http://localhost:3000 |
+| **API** (Laravel) | http://localhost:8000/api |
+| **Health Check** | http://localhost:8000/api/health |
+| **MySQL** | `localhost:3307` (usuário: `bi_user`, senha: `secret`) |
+
+---
+
+## Endpoints da API
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/health` | Status da aplicação e conexão com o banco |
+| `GET` | `/api/patients` | Listagem paginada (suporta `?search=` e `?per_page=`) |
+| `POST` | `/api/patients` | Cadastrar novo paciente |
+| `GET` | `/api/patients/{id}` | Detalhes de um paciente |
+| `PUT` | `/api/patients/{id}` | Atualizar paciente |
+| `DELETE` | `/api/patients/{id}` | Excluir paciente (soft delete) |
+
+---
+
+## Como rodar os testes
+
+### Backend (Laravel — PHPUnit)
+
+```bash
+docker exec bi_backend php artisan test
+```
+
+Saída esperada:
+```
+Tests:    18 passed (56 assertions)
+Duration: ~0.6s
+```
+
+Os testes de feature cobrem:
+- Health check
+- Listagem com paginação e filtro por nome/CPF
+- Cadastro com dados válidos
+- Validação de campos obrigatórios (422)
+- CPF duplicado
+- Atualização de paciente
+- Soft delete e verificação de exclusão na listagem
+
+O ambiente de testes usa **SQLite in-memory** (`phpunit.xml`), sem dependência do MySQL.
+
+### Frontend (Vue.js — Jest)
+
+O container do frontend é apenas Nginx (sem Node.js), então os testes precisam ser executados com um container Node temporário:
+
+```bash
+# A partir da pasta front-vuejs
+cd front-vuejs
+docker run --rm -it -v $(pwd):/app -w /app node:18-alpine npm test
+```
+
+Ou localmente (com Node.js 18+ instalado):
+
+```bash
+cd front-vuejs
+npm install
+npm test
+```
+
+Saída esperada:
+```
+Test Suites: 4 passed, 4 total
+Tests:       27 passed, 27 total
+```
+
+Os testes de componente cobrem:
+- `DeletePatientModal` — renderização, eventos, spinner
+- `PatientsView` — título, chamada ao service, loading, empty state, busca
+- `PatientCreateView` — validação vazia, chamada ao service, erros 422, redirect
+- `PatientEditView` — pré-preenchimento, conversão de data, update, delete, redirect
+
+---
+
+## Arquitetura e decisões técnicas
+
+### Backend
+
+```
+php-laravel/
+├── app/
+│   ├── Actions/
+│   │   └── PatientAction.php       # Lógica de negócio (service layer)
+│   ├── Http/
+│   │   ├── Controllers/Api/
+│   │   │   └── PatientController.php   # Controller thin — delega ao Action
+│   │   ├── Requests/
+│   │   │   ├── StorePatientRequest.php  # Validação do cadastro
+│   │   │   └── UpdatePatientRequest.php # Validação da atualização
+│   │   └── Resources/
+│   │       └── PatientResource.php      # Transformação do JSON de resposta
+│   └── Models/
+│       └── Patient.php              # Model com SoftDeletes
+├── database/
+│   ├── factories/PatientFactory.php # Dados brasileiros realistas
+│   ├── migrations/                  # Tabela patients com deleted_at
+│   └── seeders/PatientSeeder.php    # 25 pacientes gerados no boot
+└── tests/Feature/PatientApiTest.php # 18 testes de feature
+```
+
+**Princípios aplicados:**
+- **Form Requests** para isolamento das regras de validação
+- **API Resources** para padronização e transformação do JSON
+- **Service/Action Layer** para desacoplar lógica de negócio dos Controllers
+- **SoftDeletes** — registros excluídos ficam no banco com `deleted_at` preenchido
+- **Faker PT-BR** — nomes, CPFs e telefones com formato brasileiro
+
+### Frontend
+
+```
+front-vuejs/
+├── src/
+│   ├── services/
+│   │   ├── api.ts              # Instância Axios + interceptors de erro
+│   │   └── patientService.ts   # Métodos de acesso à API
+│   ├── components/
+│   │   ├── AppSidebar.vue      # Sidebar azul escuro
+│   │   └── DeletePatientModal.vue  # Modal de confirmação de exclusão
+│   ├── views/
+│   │   ├── PatientsView.vue    # Listagem com busca e paginação
+│   │   ├── PatientCreateView.vue   # Cadastro com validação reativa
+│   │   ├── PatientDetailView.vue   # Detalhes do paciente
+│   │   └── PatientEditView.vue     # Edição + exclusão
+│   └── tests/
+│       ├── setup.ts            # Bootstrap-Vue global para testes
+│       ├── PatientsView.spec.ts
+│       ├── PatientCreateView.spec.ts
+│       ├── PatientEditView.spec.ts
+│       └── DeletePatientModal.spec.ts
+```
+
+**Princípios aplicados:**
+- **Axios com interceptors globais** para tratamento unificado de erros HTTP
+- **Service layer** separado das views para facilitar mocks nos testes
+- **Bootstrap-Vue 2** para componentes UI consistentes com o protótipo
+- **vue-the-mask** para máscaras de CPF, RG e telefone
+- **Debounce** na busca para evitar requisições excessivas
+
+### Infraestrutura Docker
+
+```
+docker-compose.yml          # Orquestra mysql + backend + frontend
+php-laravel/
+├── Dockerfile              # PHP 8.2-FPM + Nginx em container único
+├── docker/
+│   ├── entrypoint.sh       # Boot automatizado: env → key → migrate → seed → serve
+│   └── nginx.conf          # Configuração do Nginx para o Laravel
+front-vuejs/
+├── Dockerfile              # Build Node 18 + serve Nginx (multi-stage)
+└── docker/
+    └── nginx.conf          # Nginx com suporte ao Vue Router history mode
+```
+
+---
+
+## Collection do Postman
+
+Importe o arquivo [`postman/pacientes-api.json`](./postman/pacientes-api.json) no Postman para ter acesso a todos os endpoints com exemplos de requisição e resposta.
+
+**Variável de ambiente:** `{{base_url}}` = `http://localhost:8000`

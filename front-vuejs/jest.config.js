@@ -11,6 +11,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/services/api$': '<rootDir>/src/tests/__mocks__/api.ts',
+    '^../services/api$': '<rootDir>/src/tests/__mocks__/api.ts',
+    '^./api$': '<rootDir>/src/tests/__mocks__/api.ts',
     '\\.(css|less|scss|sass)$': '<rootDir>/src/tests/__mocks__/styleMock.js',
     '\\.(png|jpg|svg|ico)$': '<rootDir>/src/tests/__mocks__/fileMock.js'
   },

@@ -12,7 +12,7 @@ RUN npm install
 # Copia o restante do código
 COPY . .
 
-# Build de produção
+# Build de produção (usa .env.production automaticamente)
 RUN npm run build-only
 
 # Stage 2: Serve com Nginx

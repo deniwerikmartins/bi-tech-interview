@@ -1,8 +1,7 @@
 <template>
   <nav class="sidebar">
-    <!-- Logo / brand area -->
     <div class="sidebar-brand">
-      <span class="sidebar-brand-icon">✚</span>
+      <b-icon icon="heart-pulse" style="color: white; font-size: 1.5rem;" />
     </div>
   </nav>
 </template>
@@ -33,11 +32,5 @@ export default Vue.extend({
   width: 100%;
   height: 64px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.sidebar-brand-icon {
-  color: #ffffff;
-  font-size: 1.5rem;
-  font-weight: 700;
 }
 </style>

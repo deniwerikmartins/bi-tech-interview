@@ -1,0 +1,223 @@
+{
+  "info": {
+    "_postman_id": "bi-tech-patients-api",
+    "name": "Pacientes API",
+    "description": "Coleção completa de endpoints para o CRUD de pacientes.\n\nVariável de ambiente: {{base_url}} = http://localhost:8000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Verifica o status da aplicação e a conexão com o banco de dados."
+      },
+      "response": [
+        {
+          "name": "200 OK — Aplicação saudável",
+          "status": "OK",
+          "code": 200,
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"status\": \"ok\",\n  \"database\": \"connected\",\n  \"app\": \"BI Patients\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Pacientes",
+      "item": [
+        {
+          "name": "Listar pacientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients?page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Número da página" },
+                { "key": "per_page", "value": "10", "description": "Itens por página" },
+                { "key": "search", "value": "", "description": "Busca por nome ou CPF", "disabled": true }
+              ]
+            },
+            "description": "Retorna lista paginada de pacientes. Suporta busca por nome ou CPF via parâmetro `search`."
+          },
+          "response": [
+            {
+              "name": "200 OK — Lista paginada",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Alfredo Rhiel Madsen\",\n      \"cpf\": \"625.189.530-60\",\n      \"rg\": \"35.688.019-9\",\n      \"birth_date\": \"20/07/1996\",\n      \"biological_sex\": \"Masculino\",\n      \"phone\": \"(11) 92853-5718\",\n      \"email\": \"alfredo.rhiel@email.com\",\n      \"description\": null,\n      \"created_at\": \"15/10/2026 10:00\",\n      \"updated_at\": \"15/10/2026 10:00\"\n    }\n  ],\n  \"links\": {\n    \"first\": \"http://localhost:8000/api/patients?page=1\",\n    \"last\": \"http://localhost:8000/api/patients?page=3\",\n    \"prev\": null,\n    \"next\": \"http://localhost:8000/api/patients?page=2\"\n  },\n  \"meta\": {\n    \"current_page\": 1,\n    \"from\": 1,\n    \"last_page\": 3,\n    \"per_page\": 10,\n    \"to\": 10,\n    \"total\": 25\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar pacientes por nome ou CPF",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients?search=Alfredo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"],
+              "query": [
+                { "key": "search", "value": "Alfredo", "description": "Busca por nome ou CPF" }
+              ]
+            },
+            "description": "Filtra pacientes pelo nome ou CPF informado no parâmetro `search`."
+          },
+          "response": []
+        },
+        {
+          "name": "Detalhar paciente",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "1"]
+            },
+            "description": "Retorna os dados completos de um paciente pelo ID."
+          },
+          "response": [
+            {
+              "name": "200 OK — Paciente encontrado",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Alfredo Rhiel Madsen\",\n    \"cpf\": \"625.189.530-60\",\n    \"rg\": \"35.688.019-9\",\n    \"birth_date\": \"20/07/1996\",\n    \"biological_sex\": \"Masculino\",\n    \"phone\": \"(11) 92853-5718\",\n    \"email\": \"alfredo.rhiel@email.com\",\n    \"description\": \"Lorem ipsum dolor sit amet.\",\n    \"created_at\": \"15/10/2026 10:00\",\n    \"updated_at\": \"15/10/2026 10:00\"\n  }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"No query results for model [App\\\\Models\\\\Patient] 999\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar paciente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"João da Silva\",\n  \"cpf\": \"123.456.789-09\",\n  \"rg\": \"12.345.678-9\",\n  \"birth_date\": \"1990-05-15\",\n  \"biological_sex\": \"Masculino\",\n  \"phone\": \"(11) 91234-5678\",\n  \"email\": \"joao.silva@email.com\",\n  \"description\": \"Paciente sem comorbidades.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"]
+            },
+            "description": "Cadastra um novo paciente.\n\nCampos obrigatórios: `name`, `cpf`, `rg`, `birth_date`, `biological_sex`, `phone`.\n\nCampos opcionais: `email`, `description`.\n\nValores aceitos para `biological_sex`: `Masculino`, `Feminino`, `Outro`."
+          },
+          "response": [
+            {
+              "name": "201 Created — Paciente cadastrado",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"data\": {\n    \"id\": 26,\n    \"name\": \"João da Silva\",\n    \"cpf\": \"123.456.789-09\",\n    \"rg\": \"12.345.678-9\",\n    \"birth_date\": \"15/05/1990\",\n    \"biological_sex\": \"Masculino\",\n    \"phone\": \"(11) 91234-5678\",\n    \"email\": \"joao.silva@email.com\",\n    \"description\": \"Paciente sem comorbidades.\",\n    \"created_at\": \"15/10/2026 12:00\",\n    \"updated_at\": \"15/10/2026 12:00\"\n  }\n}"
+            },
+            {
+              "name": "422 Unprocessable Entity — Validação",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"O nome completo é obrigatório. (and 4 more errors)\",\n  \"errors\": {\n    \"name\": [\"O nome completo é obrigatório.\"],\n    \"cpf\": [\"O CPF é obrigatório.\"],\n    \"birth_date\": [\"A data de nascimento é obrigatória.\"],\n    \"biological_sex\": [\"O sexo biológico é obrigatório.\"],\n    \"phone\": [\"O celular é obrigatório.\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar paciente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"João da Silva Atualizado\",\n  \"cpf\": \"123.456.789-09\",\n  \"rg\": \"12.345.678-9\",\n  \"birth_date\": \"1990-05-15\",\n  \"biological_sex\": \"Masculino\",\n  \"phone\": \"(11) 91234-5678\",\n  \"email\": \"joao.novo@email.com\",\n  \"description\": \"Descrição atualizada.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "1"]
+            },
+            "description": "Atualiza os dados de um paciente existente. A regra de CPF único ignora o próprio registro."
+          },
+          "response": [
+            {
+              "name": "200 OK — Paciente atualizado",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"João da Silva Atualizado\",\n    \"cpf\": \"123.456.789-09\",\n    \"rg\": \"12.345.678-9\",\n    \"birth_date\": \"15/05/1990\",\n    \"biological_sex\": \"Masculino\",\n    \"phone\": \"(11) 91234-5678\",\n    \"email\": \"joao.novo@email.com\",\n    \"description\": \"Descrição atualizada.\",\n    \"created_at\": \"15/10/2026 10:00\",\n    \"updated_at\": \"15/10/2026 13:00\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Excluir paciente (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "1"]
+            },
+            "description": "Realiza a exclusão lógica (soft delete) do paciente. O registro permanece no banco com o campo `deleted_at` preenchido e não aparece mais nas listagens."
+          },
+          "response": [
+            {
+              "name": "200 OK — Paciente excluído",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Patient deleted successfully.\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"No query results for model [App\\\\Models\\\\Patient] 999\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

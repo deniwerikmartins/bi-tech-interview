@@ -15,6 +15,10 @@ php artisan key:generate --force --no-interaction
 echo "==> [3/6] Otimizando autoloader..."
 composer dump-autoload --optimize
 
+echo "==> [3.5/6] Ajustando permissões do storage..."
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 echo "==> [4/6] Aguardando MySQL ficar pronto..."
 until mysqladmin ping -h"${DB_HOST:-mysql}" -uroot -p"${DB_PASSWORD:-secret}" --skip-ssl --silent 2>/dev/null; do
     echo "     MySQL ainda não está pronto, aguardando 3s..."
