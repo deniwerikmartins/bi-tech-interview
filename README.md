@@ -29,7 +29,7 @@ Nenhuma outra dependência precisa ser instalada localmente.
 Clone o repositório e suba toda a stack com um único comando na raiz do projeto:
 
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/deniwerikmartins/bi-tech-interview
 cd bi-tech-interview
 docker compose up --build
 ```
